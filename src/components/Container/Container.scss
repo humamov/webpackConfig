@@ -1,0 +1,11 @@
+$bgColor: gainsboro;
+$bgColorPink: pink;
+
+.root {
+  background-color: $bgColor;
+  padding: 10rem 0;
+}
+
+.type-pink {
+  background-color: $bgColorPink;
+}
