@@ -1,80 +1,87 @@
-const path= require('path');
+const path = require('path')
+const glob = require('glob');
+const webpack = require('webpack')
+
+// Plugins
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-module.exports={
-    entry:path.resolve(__dirname,'src/index.js'),
-    output: {
-        path: path.resolve(__dirname,'dist'),
-        filename: "bundle.js"
-    },
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const PurifyCSSPlugin = require('purifycss-webpack');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 
+const src = path.resolve(__dirname, './src');
+const dist = path.resolve(__dirname, 'dist');
+const devMode = process.env.NODE_ENV !== 'production'
+const switchMinify = false;
 
-    module: {
-        rules: [
-            {
-                test:/\.js$/,
-                use:"babel-loader",
-                exclude:/node_modules/,
-            },
-
-            {
-                test:/\.(css|scss)$/,
-                use:[
-                    'style-loader',
-                    {
-                        loader: 'css-loader',
-                        options: {
-                            sourceMap: true,
-                            modules: true,
-                            camelCase: true,
-                            localIdentName: '[local]___[hash:base64:5]',
-                        },
-                    },
-                    'sass-loader',
-                ]
-            },
-
-            {
-                test:/\.less/,
-                use:[
-                    "less-loader",
-                ]
-            },
-
-            {
-                test: /\.(gif|png|jpe?g|svg)$/i,
-                use: [
-                    'file-loader',
-                    {
-                        loader: 'image-webpack-loader',
-                        options: {
-                            bypassOnDebug: true,
-                            disable: true
-                        }
-                    }
-                ]
-            },
-
-            {
-                test:/\.(jpg|png|gif)$/i,
-                exclude:/node_modules/,
-                use:{
-                    loader: "url-loader",
-                    options:{
-                        limit:8000
-                    }
-                }
-
+module.exports = {
+  entry: {
+    app: [path.resolve(src, 'index.js')]
+  },
+  output: {
+    path: dist,
+    filename: '[name].bundle.js'
+  },
+  module: {
+    rules: [
+      {
+        test: /\.js|jsx$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader"
+        }
+      },
+      {
+        test:/\.(s*)css$/,
+        use: [
+          {
+            loader: devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
+          },
+          {
+            loader: "css-loader",
+            options: {
+              sourceMap: true,
+              modules: true,
+              localIdentName: "[local]___[hash:base64:5]"
             }
-        ]
+          },
+          {
+            loader: "sass-loader"
+          }
+        ],
+      }
+    ]
+  },
+
+  plugins: [
+    new CleanWebpackPlugin('dist', {}),
+    new HtmlWebpackPlugin({
+      title: 'Hello Humam',
+      minify: {
+        collapseWhitespace: switchMinify
+      },
+      hash: true,
+      template: './index.html'
+    }),
+    new MiniCssExtractPlugin({
+      filename: devMode ? '[name].css' : '[name].[hash].css',
+      chunkFilename: devMode ? '[id].css' : '[id].[hash].css',
+    }),
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.NamedModulesPlugin(),
+    new PurifyCSSPlugin({
+      // Give paths to parse for rules. These should be absolute!
+      paths: glob.sync(path.join(__dirname, './*.html')),
+    })
+
+  ],
+  devServer: {
+    contentBase: path.join(__dirname, dist),
+    compress: true,
+    port: 3001,
+    open: true,
+    overlay: {
+      warnings: true,
+      errors: true,
     },
-    plugins: [
-        new HtmlWebpackPlugin({
-            template: path.resolve(__dirname,'src/index.html')
-        })
-    ],
-    devServer: {
-        
-        compress: true,
-        hot: true,
-    }
-};
+  }
+}
