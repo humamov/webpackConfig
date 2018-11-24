@@ -1,18 +1,15 @@
 import React from 'react';
 import ReactDom from 'react-dom';
+import Container from './components/Container'
+import { Button } from 'react-bulma-components/full'
 
-import './index.css';
-
-const Index = ()=>{
+const App = ()=>{
     return(
-        <div>
-            <h1 >humam</h1>
-            <a className="button is-link">Link</a>
-            <a className="button is-info">Info</a>
-            <a className="button is-success">Success</a>
-            <a className="button is-warning">Warning</a>
-            <a className="button is-danger">Danger</a>
-        </div>
+        <Container variant="pink">
+            <Button>Bulma Component</Button>
+            <Button color='primary'>Bulma Component</Button>
+            <button className='button is-danger'>Bulma Component</button>
+        </Container>
     )
 };
-ReactDom.render(<Index/>,document.getElementById('root'));
+ReactDom.render(<App/>,document.getElementById('root'));
